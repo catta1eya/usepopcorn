@@ -34,7 +34,6 @@ const App = () => {
   };
 
   const handleDeleteWatchedMovie = (id) => {
-    console.log("++id", id);
     setWatched((watched) => watched.filter((movie) => movie.imdbId !== id));
   };
 
