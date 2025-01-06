@@ -74,7 +74,7 @@ const App = () => {
         setMovies(data.Search);
         setError("");
       } catch (err) {
-        console.log(`${err.name}: ${err.message}`);
+        console.error(`${err.name}: ${err.message}`);
         if (err.name !== "AbortError") setError(err.message);
       } finally {
         setIsLoading(false);
