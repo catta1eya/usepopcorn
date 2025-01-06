@@ -74,8 +74,10 @@ const App = () => {
         setMovies(data.Search);
         setError("");
       } catch (err) {
-        console.error(`${err.name}: ${err.message}`);
-        if (err.name !== "AbortError") setError(err.message);
+        if (err.name !== "AbortError") {
+          setError(err.message);
+          console.log(`${err.name}: ${err.message}`);
+        }
       } finally {
         setIsLoading(false);
       }
@@ -87,6 +89,7 @@ const App = () => {
       return;
     }
 
+    handleCloseMovie();
     fetchMovies();
 
     return () => {
