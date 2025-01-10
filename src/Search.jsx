@@ -1,21 +1,14 @@
-import { useEffect, useRef } from "react";
+import { useRef } from "react";
+import { useKey } from "./useKey";
 
 const Search = ({ query, setQuery }) => {
   const inputEl = useRef(null); //in case of DOM element we usually initialize with null
 
-  useEffect(() => {
-    const callback = (e) => {
-      if (document.activeElement === inputEl.current) return;
-
-      if (e.code === "Enter") {
-        inputEl.current.focus(); //set focus for search input on component mount
-        setQuery("");
-      }
-    };
-    document.addEventListener("keydown", callback);
-
-    return () => document.addEventListener("keydown", callback);
-  }, [setQuery]);
+  useKey("Enter", () => {
+    if (document.activeElement === inputEl.current) return;
+    inputEl.current.focus();
+    setQuery("");
+  });
 
   // Wrong way of selecting DOM elements
   // useEffect(() => {

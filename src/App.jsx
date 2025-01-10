@@ -10,127 +10,33 @@ import { useEffect, useState } from "react";
 import Loader from "./Loader";
 import ErrorMessage from "./ErrorMessage";
 import MovieDetails from "./MovieDetails";
-
-export const API_KEY = "d049f86f";
-
-const useDebounce = (value, delay) => {
-  const [debouncedValue, setDebouncedValue] = useState(value);
-
-  useEffect(() => {
-    const handler = setTimeout(() => setDebouncedValue(value), delay);
-
-    return () => clearTimeout(handler);
-  }, [value, delay]);
-
-  return debouncedValue;
-};
+import { useMovies } from "./useMovies";
+import { useLocalStorageState } from "./useLocalStorageState";
 
 const App = () => {
   const [query, setQuery] = useState("");
-  const [movies, setMovies] = useState([]);
-  const [watched, setWatched] = useState(
-    () => JSON.parse(localStorage.getItem("watchedMovies")) || []
-  );
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [watched, setWatched] = useLocalStorageState([], "watchedMovies");
+  // const [watched, setWatched] = useState(
+  //   () => JSON.parse(localStorage.getItem("watchedMovies")) || []
+  // );
   const [selectedId, setSelectedId] = useState(null);
-  const debouncedQuery = useDebounce(query, 300);
+  const [movies, isLoading, error, refresh] = useMovies(query);
 
   const handleSelectMovie = (id) => {
     setSelectedId((selectedId) => (id === selectedId ? null : id));
   };
 
-  const handleCloseMovie = () => {
+  function handleCloseMovie() {
     setSelectedId(null);
-  };
+  }
 
   const handleAddWatchedMovie = (movie) => {
     setWatched((watchedMovies) => [...watchedMovies, movie]);
-
-    // add to localStorage
-    // localStorage.setItem("watchedMovies", JSON.stringify([...watched, movie]));
   };
 
   const handleDeleteWatchedMovie = (id) => {
     setWatched((watched) => watched.filter((movie) => movie.imdbId !== id));
   };
-
-  useEffect(() => {
-    // const controller = new AbortController();
-
-    // const fetchMovies = async () => {
-    // try {
-    //   setError(false);
-    //   setIsLoading(true);
-    //   const res = await fetch(
-    //     `http://www.omdbapi.com/?apikey=${API_KEY}&s=${query}`,
-    //     { signal: controller.signal }
-    //   );
-
-    //   if (!res.ok) throw new Error("Something went wrong");
-
-    //   const data = await res.json();
-
-    //   if (data.Response === "False") throw new Error("Movie not found");
-
-    //   setMovies(data.Search);
-    //   setError("");
-    // } catch (err) {
-    //   if (err.name !== "AbortError") {
-    //     setError(err.message);
-    //     console.log(`${err.name}: ${err.message}`);
-    //   }
-    // } finally {
-    //   setIsLoading(false);
-    // }
-
-    // Using debouncing
-    const fetchMovies = async () => {
-      try {
-        setError(false);
-        setIsLoading(true);
-        const res = await fetch(
-          `http://www.omdbapi.com/?apikey=${API_KEY}&s=${query}`
-        );
-
-        if (!res.ok) throw new Error("Something went wrong");
-
-        const data = await res.json();
-
-        if (data.Response === "False") throw new Error("Movie not found");
-
-        setMovies(data.Search);
-        setError("");
-      } catch (err) {
-        if (err.name !== "AbortError") {
-          setError(err.message);
-          console.log(`${err.name}: ${err.message}`);
-        }
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    if (query.length < 3) {
-      setMovies([]);
-      setError("");
-      return;
-    }
-
-    if (debouncedQuery) {
-      handleCloseMovie();
-      fetchMovies();
-    }
-
-    return () => {
-      // controller.abort();
-      clearTimeout(fetchMovies);
-    };
-  }, [query, debouncedQuery]);
-
-  useEffect(() => {
-    localStorage.setItem("watchedMovies", JSON.stringify(watched));
-  }, [watched]);
 
   return (
     <>
@@ -139,7 +45,7 @@ const App = () => {
         <Numresults movies={movies} />
       </Navbar>
       <Main>
-        <Box>
+        <Box refresh={refresh}>
           {isLoading && <Loader />}
           {!isLoading && !error && (
             <MoviesList movies={movies} onSelectMovie={handleSelectMovie} />

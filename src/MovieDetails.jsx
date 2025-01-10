@@ -1,8 +1,10 @@
 import { useEffect, useRef, useState } from "react";
-import { API_KEY } from "./App";
 import Loader from "./Loader";
 import ErrorMessage from "./ErrorMessage";
 import StarRating from "./StarRating";
+import { useKey } from "./useKey";
+
+const API_KEY = "d049f86f";
 
 const MovieDetails = ({
   selectedId,
@@ -95,17 +97,7 @@ const MovieDetails = ({
     };
   }, [title]);
 
-  useEffect(() => {
-    const callback = (e) => {
-      if (e.code === "Escape") onCloseMovie();
-    };
-
-    document.addEventListener("keydown", callback);
-
-    return () => {
-      document.removeEventListener("keydown", callback);
-    };
-  }, []);
+  useKey("Escape", onCloseMovie);
 
   return (
     <div className="details">
