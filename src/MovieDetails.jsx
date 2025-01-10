@@ -1,9 +1,8 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { API_KEY } from "./App";
 import Loader from "./Loader";
 import ErrorMessage from "./ErrorMessage";
 import StarRating from "./StarRating";
-import WatchedMovie from "./WatchedMovie";
 
 const MovieDetails = ({
   selectedId,
@@ -16,6 +15,16 @@ const MovieDetails = ({
   const [movie, setMovie] = useState({});
   const [rating, setRating] = useState(null);
 
+  const countRef = useRef(0); // Ref is persisted across renders
+  // let count = 0; //let is re-set to 0 after every re-render.
+
+  useEffect(() => {
+    if (rating) countRef.current++;
+    // if (rating) count++;
+    console.log("++ref", countRef.current);
+    // console.log("++let", count);
+  }, [rating]);
+
   const isWatched = watched.map((movie) => movie.imdbId).includes(selectedId);
 
   const watchedRating = watched.find(
@@ -24,7 +33,6 @@ const MovieDetails = ({
 
   const {
     Title: title,
-    Year: year,
     Poster: poster,
     Runtime: runtime,
     imdbRating,
@@ -43,6 +51,7 @@ const MovieDetails = ({
       imdbRating: Number(imdbRating),
       runtime: Number(runtime.split(" ").at(0)),
       userRating: rating,
+      countRatingDecisions: countRef.current,
     };
 
     onAddWatchedMovie(newWatchedMovie);
