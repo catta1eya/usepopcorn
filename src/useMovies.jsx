@@ -12,8 +12,6 @@ const useDebounce = (value, delay) => {
   return debouncedValue;
 };
 
-const API_KEY = "d049f86f";
-
 export const useMovies = (query) => {
   const [movies, setMovies] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -25,7 +23,9 @@ export const useMovies = (query) => {
       setError(false);
       setIsLoading(true);
       const res = await fetch(
-        `http://www.omdbapi.com/?apikey=${API_KEY}&s=${debouncedQuery}`
+        `http://www.omdbapi.com/?apikey=${
+          import.meta.env.VITE_API_KEY
+        }&s=${debouncedQuery}`
       );
 
       if (!res.ok) throw new Error("Something went wrong");
